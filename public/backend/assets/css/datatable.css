@@ -1,0 +1,9 @@
+#example tbody tr:nth-child(odd) {
+background-color: #ffce10;
+/* Vert clair */
+}
+
+#example tbody tr:nth-child(even) {
+background-color: #fff;
+/* Vert un peu plus foncé */
+}
