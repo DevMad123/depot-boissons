@@ -14,6 +14,8 @@ use App\Http\Controllers\Backend\Typeproduit\TypeproduitController;
 use App\Http\Controllers\Backend\RolesController;
 use App\Http\Controllers\Backend\Taille\TailleController;
 use App\Http\Controllers\Backend\Approvisionnement\ApprovisionnementController;
+use App\Http\Controllers\Backend\Journee\JourneeController;
+use App\Http\Controllers\Backend\JourneeOperations\JourneeOperationsController;
 use App\Http\Controllers\Backend\Inventaire\InventaireController;
 use App\Http\Controllers\Backend\Cloture\ClotureController;
 use App\Http\Controllers\Backend\Devise\DeviseController;
@@ -81,7 +83,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::get('tariftypeproduitembclients/listeproduit/{id1}/{id2}', [tariftypeproduitembclientController::class, 'listeproduit'])->name('tariftypeproduitembclients.listeproduit');
 
-    
+
     Route::resource('tariftypeproduitclients', TariftypeproduitclientController::class);
 
     Route::resource('tariftypeproduitfournisseurs', TariftypeproduitfournisseurController::class);
@@ -130,7 +132,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::get('approvisionnements/gettypefournisseur/{id}', [ApprovisionnementController::class, 'gettypefournisseur'])->name('approvisionnements.gettypefournisseur');
 
-    Route::resource('inventaires', InventaireController::class);
+    // Route::resource('inventaires', InventaireController::class);
+
+    Route::get('inventaires/{id}/form', [InventaireController::class, 'inventaireForm'])->name('inventaires.form');
+    Route::get('inventaires/{id}/verification', [InventaireController::class, 'inventaireVerification'])->name('inventaires.verify');
+
+    Route::resource('journees', JourneeController::class);
+    Route::resource('operations', JourneeOperationsController::class);
+    Route::get('operations/all', [JourneeOperationsController::class, 'all'])->name('operations.all');
+    Route::get('operations/parJournee/{id}', [JourneeOperationsController::class, 'operationsParJourneeId'])->name('operations.operationsParJourneeId');
+
+    Route::put('journees/close/{id}/{force?}', [JourneeController::class, 'close'])->name('journees.close');
 
     Route::resource('produits', ProduitController::class);
 

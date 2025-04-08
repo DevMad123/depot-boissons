@@ -16,6 +16,7 @@ use App\Models\Tariftypeproduitclient;
 use App\Models\Tariftypeproduitembclient;
 use App\Models\Traitementclientvente;
 use App\Models\TraitementVente;
+use App\Models\Journee;
 use App\Models\Tva;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -170,6 +171,10 @@ class TraitementVenteController extends Controller
              'parammodepaiements' => ParamModepaiement::all(),
              'traitementventes' => TraitementVente::all(),
          ]);*/
+         $journeeOuverte = Journee::where('statut', 'ouverte')->exists();
+        if (!$journeeOuverte) {
+            return redirect()->route('admin.journees.index')->with('error', 'Veuillez ouvrir une journée avant toute operation.');
+        }
         $client_id = Traitementclientvente::first();
         $clientsinfos = Client::where('id', $client_id['client_id'])->get();
         $produits = Produit::all();
@@ -206,17 +211,17 @@ class TraitementVenteController extends Controller
 
         if ($emballageCasier === 'Casier') {
             // Vérifier si les champs "quantiteachete" et "quantiteretourne" sont remplis
-            if (empty($request->quantiteachete) || empty($request->quantiteretourne)) {
-                session()->flash('error', 'Les champs quantiteachete et quantiteretourne sont requis.');
-                return redirect()->back();
-            }
+            // if (empty($request->quantiteachete) || empty($request->quantiteretourne)) {
+            //     session()->flash('error', 'Les champs quantiteachete et quantiteretourne sont requis.');
+            //     return redirect()->back();
+            // }
 
             // Comparer "quantiteachete" et "quantiteretourne"
             if ($request->quantiteachete > $request->quantiteretourne) {
 
                 // Vérifier si le prix unitaire d'emballage est renseigné
                 if (!empty($request->prixventeunitemb)) {
-                    
+
                     // Vérifier si le stock est suffisant
                     if ($stock->quantite_disponible < $request->quantiteachete) {
                         return redirect()->back()->with('error', 'Stock insuffisant pour ce produit.');
@@ -482,6 +487,10 @@ class TraitementVenteController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['ventes.delete']);
+        $journeeOuverte = Journee::where('statut', 'ouverte')->exists();
+        if (!$journeeOuverte) {
+            return redirect()->route('admin.journees.index')->with('error', 'Veuillez ouvrir une journée avant toute operation.');
+        }
 
         $traitementventes = TraitementVente::findOrFail($id);
         $traitementventes->delete();

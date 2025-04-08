@@ -12,6 +12,7 @@ use App\Models\Produit;
 use App\Models\Stock;
 use App\Models\Traitementclientvente;
 use App\Models\TraitementVente;
+use App\Models\Journee;
 use App\Models\Tva;
 use App\Models\Typeclient;
 use Illuminate\Contracts\Support\Renderable;
@@ -44,9 +45,13 @@ class TraitementVenteClientController extends Controller
 
     // Afficher le formulaire pour créer une nouvelle vente
 
-    public function create(): Renderable
+    public function create()
     {
         $this->checkAuthorization(auth()->user(), ['ventes.create']);
+        $journeeOuverte = Journee::where('statut', 'ouverte')->exists();
+        if (!$journeeOuverte) {
+            return redirect()->route('admin.journees.index')->with('error', 'Veuillez ouvrir une journée avant toute operation.');
+        }
         return view('backend.pages.traitementventeclient.create', [
             'typeclients' => Typeclient::all(),
             'produits' => Produit::all(),
@@ -63,12 +68,15 @@ class TraitementVenteClientController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['ventes.create']);
+        $journeeOuverte = Journee::where('statut', 'ouverte')->exists();
+        if (!$journeeOuverte) {
+            return redirect()->route('admin.journees.index')->with('error', 'Veuillez ouvrir une journée avant toute operation.');
+        }
+        $numeroAleatoire = random_int(10000000, 99999999);
 
-        $numeroAleatoire = random_int(10000000, 99999999); 
-   
         // Ajouter un préfixe de lettres (3 lettres fixes ou générées)
         $lettres = 'CLT'; // Vous pouvez également générer ceci aléatoirement si nécessaire
-        
+
 
         // Combiner le préfixe et le numéro formaté
         $NouveauNumMat = $lettres . $numeroAleatoire;

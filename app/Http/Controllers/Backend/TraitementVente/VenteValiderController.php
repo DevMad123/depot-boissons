@@ -12,6 +12,8 @@ use App\Models\FraisPort;
 use App\Models\Listevente;
 use App\Models\Traitementclientvente;
 use App\Models\TraitementVente;
+use App\Models\JourneeOperations;
+use App\Models\Journee;
 use App\Models\Tva;
 use App\Models\vente;
 use Illuminate\Contracts\Support\Renderable;
@@ -25,6 +27,10 @@ class VenteValiderController extends Controller
 
     public function store(StoreVenteValiderRequest $request)
     {
+        $journeeOuverte = Journee::where('statut', 'ouverte')->get();
+        if ($journeeOuverte->isEmpty()) {
+            return redirect()->back()->withErrors(['error' => 'Veuillez ouvrir une journée avant toute operation.']);
+        }
         $this->checkAuthorization(auth()->user(), ['ventes.create']);
         $traitementventes = TraitementVente::all();
 
@@ -41,7 +47,7 @@ class VenteValiderController extends Controller
         $incrementId = $dernierId ? $dernierId->id + 1 : 1;
 
         // Générer un numéro aléatoire unique à 8 chiffres
-        $numeroAleatoire = random_int(10000000, 99999999); 
+        $numeroAleatoire = random_int(10000000, 99999999);
 
         // Ajouter un préfixe de lettres (3 lettres fixes ou générées)
         $lettresfacture = 'FACT'; // Vous pouvez également générer ceci aléatoirement si nécessaire
@@ -55,7 +61,7 @@ class VenteValiderController extends Controller
         // Combiner le préfixe et le numéro formaté
         $NouveauNumFact = $lettresfacture . $numeroAleatoire;
 
-        
+
         $CodeVente = $lettrescodevente . $numeroAleatoire;
 
         $radio_defini = $request->radio_defini;
@@ -79,10 +85,10 @@ class VenteValiderController extends Controller
         // Supprimer les espaces et remplacer la virgule par un point
         $number = str_replace(' ', '', $formattedNumber); // On enlève les espaces
         $number = str_replace(',', '.', $number); // On remplace la virgule par un point
-        
+
         // Convertir en float ou int si nécessaire
         $montanttotalfacture = (float) $number; // Ou (int) si vous voulez un entier
-        
+
 
 
 
@@ -136,11 +142,11 @@ class VenteValiderController extends Controller
         // END CONDITIONS SELON LE MODE DE PAIEMENT
 
         $totalPrixVenteLiquide = TraitementVente::sum('prix_vente_totalliquide');
-        
+
 
         $totalPrixVenteemballage = TraitementVente::sum('prix_vente_totalemb');
 
-        
+
         $listeventes->code_vente = $CodeVente;
         $listeventes->facture_num = $NouveauNumFact;
         $listeventes->client_id = $traitementclientventes[0]['client_id'];
@@ -156,7 +162,7 @@ class VenteValiderController extends Controller
 
         // Vérification que les produits ont été créés dans la base de données
         foreach ($traitementventes as $traitementvente) {
-            
+
             $detailsventeavaliders = new Detailsventeavalider();
             $detailsventeavaliders->code_vente = $CodeVente;
             $detailsventeavaliders->facture_num = $NouveauNumFact;
@@ -169,6 +175,19 @@ class VenteValiderController extends Controller
             $detailsventeavaliders->prix_vente_totalemb = $traitementvente['prix_vente_totalemb'];
             $detailsventeavaliders->date_vente = $traitementvente['date_vente'];
             $detailsventeavaliders->save();
+
+
+            if ($journeeOuverte->isEmpty()) {
+                $journneeoperations = new JourneeOperations();
+                $journneeoperations->user_id = 1;
+                $journneeoperations->journee_id = $journeeOuverte->first()->id;
+                $journneeoperations->produit_id = $traitementvente['produit_id'];
+                $journneeoperations->type_operation = 'vente';
+                $journneeoperations->quantite = $traitementvente['quantite'];
+                $journneeoperations->montant = $traitementvente['prix_vente_totalliquide'];;
+                $journneeoperations->created_at = now();
+                $journneeoperations->save();
+            }
         }
 
         /*$stock = Stock::where('produit_id', $request->produit_id)->first();

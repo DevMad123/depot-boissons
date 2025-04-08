@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('backend.layouts.apps')
 
 @section('title')
     {{ __('Admins - Admin Panel') }}
@@ -53,12 +53,11 @@
                         <table id="dataTable" class="text-center">
                             <thead class="bg-light text-capitalize">
                                 <tr>
-                                    <th >{{ __('N°') }}</th> 
+                                    <th >{{ __('N°') }}</th>
                                     <th >{{ __('Produits') }}</th>
-                                    <th >{{ __('Qtes Physiques') }}</th>
-                                    <th >{{ __('Qtes enregistrées') }}</th>
-                                    <th >{{ __('Observations') }}</th>
-                                    <th >{{ __('Date inventaire') }}</th>
+                                    <th >{{ __('Qtes Ouverture') }}</th>
+                                    <th >{{ __('Qtes Fermeture') }}</th>
+                                    <th >{{ __('Commentaire') }}</th>
                                     <th >{{ __('Date Création') }}</th>
                                     <th colspan="2">{{ __('Actions') }}</th>
                                 </tr>
@@ -67,17 +66,16 @@
                                @foreach ($inventaires as $inventaires)
                                <tr>
                                     <td>{{ $loop->index+1 }}</td>
-                                    <td >{{ $inventaires->produit->libelle  }}</td>
-                                    <td >{{ $inventaires->quantite_physique}}</td>
-                                    <td >{{ $inventaires->quantite_enregistre  }}</td>
-                                    <td>{{ $inventaires->observation }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($inventaires->date_inventaire)->format('d/m/Y à H:i') }}</td>
+                                    <td></td>
+                                    <td >{{ $inventaires->quantite_ouverture}}</td>
+                                    <td >{{ $inventaires->quantite_fermeture  }}</td>
+                                    <td>{{ $inventaires->commentaire }}</td>
                                     <td>{{ \Carbon\Carbon::parse($inventaires->created_at)->format('d/m/Y à H:i') }}</td>
                                     <td>
                                         @if (auth()->user()->can('admin.edit'))
                                             <a class="btn btn-success text-white" href="{{ route('admin.admins.edit', $inventaires->id) }}">Modifier</a>
                                         @endif
-                                        
+
                                     </td>
                                     <td>
                                         @if (auth()->user()->can('admin.delete'))
@@ -112,7 +110,7 @@
      <script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
      <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
      <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
-     
+
      <script>
         if ($('#dataTable').length) {
             $('#dataTable').DataTable({

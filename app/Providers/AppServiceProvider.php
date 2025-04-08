@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
-        
+
         if (env('REDIRECT_HTTPS')) {
             URL::forceScheme('https');
         }

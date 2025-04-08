@@ -1,5 +1,5 @@
 @extends('backend.layouts.apps')
-{{-- 
+{{--
 @section('title')
     {{ __('Admins - Admin Panel') }}
 @endsection --}}
@@ -227,7 +227,7 @@
                                                         0 XOF
                                                     </td>
                                                 </tr>
-                                        
+
                                                 <tr>
                                                     <td class="tdcalcfact thtexte">
                                                         <strong>AIRSI ({{ $fraisairsis[0]->taux . '' . $tvas[0]->symbol ?? 'N/A' }})</strong>
@@ -367,7 +367,7 @@
                                                     XOF</h5>
                                                 <input type="hidden" id="totalfacture" name="totalfacture"
                                                     value="{{ number_format($factures->fraisport + $totalht * ($fraisairsis[0]->taux / 100) + $totalht, 2, ',', ' ') }}">
-        
+
                                             </li>
                                         </ul> --}}
                                     @elseif (($clientsinfos[0]->exonerertva ?? 0) == 0 && ($clientsinfos[0]->exonererairsi ?? 0) == 1)
@@ -400,7 +400,7 @@
                                                     XOF</h5>
                                                 <input type="hidden" id="totalfacture" name="totalfacture"
                                                     value="{{ number_format($factures->fraisport + $totalht + $totalht * ($tvas[0]->taux / 100), 2, ',', ' ') }}">
-        
+
                                             </li>
                                         </ul> --}}
                                         <div class="col-lg-3 col-sm-6 col-12">
@@ -499,7 +499,7 @@
                                                     XOF</h5>
                                                 <input type="hidden" id="totalfacture" name="totalfacture"
                                                     value="{{ number_format($factures->fraisport + $totalht * ($fraisairsis[0]->taux / 100) + $totalht + $totalht * ($tvas[0]->taux / 100), 2, ',', ' ') }}">
-        
+
                                             </li>
                                         </ul> --}}
                                         <div class="col-lg-3 col-sm-6 col-12">

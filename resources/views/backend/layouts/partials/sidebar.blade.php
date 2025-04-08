@@ -10,6 +10,14 @@
                              bord</span> </a>
                  </li>
                  <li class="submenu">
+                    <a href="javascript:void(0);"><img src="{{ asset('backend/assets/img/icons/product.svg') }}"
+                            alt="img"><span> Journee</span> <span class="menu-arrow"></span></a>
+                    <ul>
+                        <li><a href="">Nouvelle journee</a></li>
+                        <li><a href="{{ route('admin.journees.index') }}">Liste des Journées</a></li>
+                    </ul>
+                </li>
+                 <li class="submenu">
                      <a href="javascript:void(0);"><img src="{{ asset('backend/assets/img/icons/product.svg') }}"
                              alt="img"><span> Produit</span> <span class="menu-arrow"></span></a>
                      <ul>

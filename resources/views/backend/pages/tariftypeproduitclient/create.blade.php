@@ -1,5 +1,5 @@
 @extends('backend.layouts.apps')
-{{-- 
+{{--
 @section('title')
     {{ __('Admins - Admin Panel') }}
 @endsection --}}
@@ -122,7 +122,7 @@
     <script src="{{ asset('backend/assets/plugins/sweetalert/sweetalerts.min.js') }}"></script>
 
     <script src="{{ asset('backend/assets/js/script.js') }}"></script>
-    <script>      
+    <script>
 $(document).ready(function () {
     $('#typeproduit_id, #typeclientId').on('change', function () {
         const typeproduitId = $('#typeproduit_id').val();
@@ -142,12 +142,12 @@ $(document).ready(function () {
                     console.log("Réponse AJAX :", response);
 
                     // Convertir listeProduitsNonTarifes en tableau
-                    const produitsNonTarifes = response.listeProduitsNonTarifes 
-                        ? Object.values(response.listeProduitsNonTarifes) 
+                    const produitsNonTarifes = response.listeProduitsNonTarifes
+                        ? Object.values(response.listeProduitsNonTarifes)
                         : [];
 
-                    const produitsTarifes = Array.isArray(response.listeProduitsTarifes) 
-                        ? response.listeProduitsTarifes 
+                    const produitsTarifes = Array.isArray(response.listeProduitsTarifes)
+                        ? response.listeProduitsTarifes
                         : [];
 
                     let content = `

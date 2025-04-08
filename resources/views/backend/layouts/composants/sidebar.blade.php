@@ -14,6 +14,36 @@
                              de
                              bord</span> </a>
                  </li>
+                 @if (
+                    $usr->can('journees.create') ||
+                    $usr->can('journees.view') ||
+                    $usr->can('journees.edit') ||
+                    $usr->can('journees.delete')
+                )
+                <li
+                    class="submenu {{ Route::is('admin.journees.index') ? 'in' : '' }}">
+                    <a href="javascript:void(0);"><img src="{{ asset('backend/assets/img/icons/product.svg') }}"
+                            alt="img"><span> Journées</span> <span class="menu-arrow"></span></a>
+                    <ul>
+                        @if ($usr->can('journees.view'))
+                            <li>
+                                <a class="{{ Route::is('admin.journees.index') ? 'active' : '' }}"
+                                    href="{{ route('admin.journees.index') }}">Liste des Journées</a>
+                            </li>
+                        @endif
+                        @if ($usr->can('journees.view'))
+                            <li>
+                                <a class="{{ Route::is('admin.operations.index') ? 'active' : '' }}"
+                                    href="{{ route('admin.operations.index') }}">Opérations de la journée</a>
+                            </li>
+                            <li>
+                                <a class="{{ Route::is('admin.operations.create') ? 'active' : '' }}"
+                                    href="{{ route('admin.operations.create') }}">Toutes les opérations</a>
+                            </li>
+                        @endif
+                    </ul>
+                </li>
+                 @endif
 
                  @if (
                      $usr->can('produit.create') ||
@@ -181,10 +211,10 @@
                          <a href="javascript:void(0);"><img src="{{ asset('backend/assets/img/icons/time.svg') }}"
                                  alt="img"><span> Rapport</span> <span class="menu-arrow"></span></a>
                          <ul>
-                             @if ($usr->can('rapportinventaire.view'))
+                             {{-- @if ($usr->can('rapportinventaire.view'))
                                  <li><a class="{{ Route::is('admin.typeproduits.index') ? 'active' : '' }}"
                                          href="{{ route('admin.inventaires.index') }}">Rapport Inventaire</a></li>
-                             @endif
+                             @endif --}}
                              @if ($usr->can('rapportventes.view'))
                                  <li><a class="{{ Route::is('admin.typeproduits.index') ? 'active' : '' }}"
                                          href="#">Rapport Ventes</a></li>

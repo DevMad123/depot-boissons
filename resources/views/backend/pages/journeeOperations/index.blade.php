@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('backend/assets/css/dataTables.bootstrap4.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset('backend/assets/plugins/fontawesome/css/fontawesome.min.css') }}">
+
     <link rel="stylesheet" href="{{ asset('backend/assets/plugins/fontawesome/css/all.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset('backend/assets/css/style.css') }}">
@@ -26,19 +27,26 @@
 @section('admin-content')
     <div class="page-header">
         <div class="page-title">
-            <h4>Liste des Tarifs Type Produit Client</h4>
-            <h6>Gérez vos  Tarifs Type Produit Client</h6>
+            <h4>Journée du {{ \Carbon\Carbon::parse($journee->date_ouverture)->translatedFormat('d F Y \à H\hi\ms\s') }}</h4>
+            <h6>Gérez vos Opérations</h6>
         </div>
-        <div class="page-btn">
-            <a href="{{ route('admin.tariftypeproduitclients.create') }}" class="btn btn-added"><img src="{{ asset('backend/assets/img/icons/plus.svg') }}"
-                    alt="img" class="me-1">Nouveau  Tarif TPC</a>
-        </div>
+        {{-- <div class="page-btn">
+            <a href="{{ route('admin.journees.create') }}" class="btn btn-added"><img
+                    src="{{ asset('backend/assets/img/icons/plus.svg') }}" alt="img" class="me-1">Nouvelle Journée</a>
+        </div> --}}
     </div>
 
     <div class="card">
         <div class="card-body">
+            @include('backend.layouts.composants.messages')
+            @if(isset($emptyMessage))
+                <div class="alert alert-danger">
+                    {{ $emptyMessage }}
+                </div>
+            @endif
             <div class="table-top">
                 <div class="search-set">
+
                     <div class="search-input">
                         <a class="btn btn-searchset"><img src="{{ asset('backend/assets/img/icons/search-white.svg') }}"
                                 alt="img"></a>
@@ -70,36 +78,48 @@
                             <th class="text-center">
                                 N°
                             </th>
-                            <th >Type de Clients</th>
-                            <th >Produits</th>
-                            <th class="text-center">Tarifs</th>
-                            <th class="text-center">Date de création</th>
+                            <th>Utilisateur</th>
+                            <th>Journee</th>
+                            <th>Produit</th>
+                            <th>Type</th>
+                            <th class="text-center">Quantité</th>
+                            <th class="text-center">Montant</th>
+                            <th class="text-center">Date Création</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($tariftypeproduitclients as $tariftypeproduitclients)
-                            <tr>
-                                <td class="text-center">{{ $loop->index+1 }}</td>
-                                <td >{{ $tariftypeproduitclients->typeclient->type }}</td>
-                                <td >{{ $tariftypeproduitclients->produit->libelle . ' de ' . $tariftypeproduitclients->produit->format->format . '  ' . $tariftypeproduitclients->produit->emballage->libelle }}</td>
-                                <td class="text-center">{{ number_format($tariftypeproduitclients->tarifliquide ?? 0, 2, ',', ' ') }}</td>
-                                <td class="text-center">{{ \Carbon\Carbon::parse($tariftypeproduitclients->created_at)->format('d-m-Y à H:i')  }}</td>
-                                <td>
 
-                                     @if (auth()->user()->can('admin.edit'))
-                                        <a class="me-3" href="{{ route('admin.admins.edit', $tariftypeproduitclients->id) }}"><img
-                                                src="{{ asset('backend/assets/img/icons/edit.svg') }}" alt="img"></a>
+                        @foreach ($operations as $operation)
+                            <tr>
+                                <td class="text-center">{{ $loop->index + 1 }}</td>
+                                <td>{{ $operation->user_id  ?? 'N/A' }}</td>
+                                <td>{{ $operation->journee_id ?? 'N/A' }}</td>
+                                <td>{{ $operation->produit_id ?? 'N/A' }}</td>
+                                <td>{{ $operation->type_operation ?? 'N/A' }}</td>
+                                <td>{{ $operation->quantite ?? 'N/A' }}</td>
+                                <td class="text-center">
+                                    {{ number_format($operation->montant, 2, ',', ' ') ?? 'N/A' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ \Carbon\Carbon::parse($operation->created_at)->format('d-m-Y à H:i') }}
+                                </td>
+                                <td>
+                                    <a class="me-3" href="product-details.html">
+                                        <img src="{{ asset('backend/assets/img/icons/eye.svg') }}" alt="img">
+                                    </a>
+                                    @if (Auth::guard('admin')->user()->can('journees.edit'))
+                                        <a class="me-3" href="{{ route('admin.inventaires.form', $operation->id) }}"><img src="{{ asset('backend/assets/img/icons/edit.svg') }}" alt="img"></a>
                                     @endif
                                     @if (auth()->user()->can('admin.delete'))
                                         <a class="confirm-text" href="javascript:void(0);"
-                                                onclick="event.preventDefault(); if(confirm('Êtes vous sûr de vouloir supprimer?')) { document.getElementById('delete-form-{{ $tariftypeproduitclients->id }}').submit(); }">
+                                            onclick="event.preventDefault(); if(confirm('Êtes vous sûr de vouloir supprimer?')) { document.getElementById('delete-form-{{ $operation->id }}').submit(); }">
                                             <img src="{{ asset('backend/assets/img/icons/delete.svg') }}" alt="img">
                                         </a>
 
-                                        <form id="delete-form-{{ $tariftypeproduitclients->id }}"
-                                            action="{{ route('admin.tariftypeproduitclients.destroy', $tariftypeproduitclients->id) }}" method="POST"
-                                            style="display: none;">
+                                        <form id="delete-form-{{ $operation->id }}"
+                                            action=""
+                                            method="POST" style="display: none;">
                                             @method('DELETE')
                                             @csrf
                                         </form>
@@ -122,7 +142,6 @@
     <script src="{{ asset('backend/assets/js/jquery.slimscroll.min.js') }}"></script>
 
     <script src="{{ asset('backend/assets/js/jquery.dataTables.min.js') }}"></script>
-
     <script src="{{ asset('backend/assets/js/dataTables.bootstrap4.min.js') }}"></script>
 
     <script src="{{ asset('backend/assets/js/bootstrap.bundle.min.js') }}"></script>

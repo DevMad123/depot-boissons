@@ -1,5 +1,5 @@
 @extends('backend.layouts.apps')
-{{-- 
+{{--
 @section('title')
     {{ __('Admins - Admin Panel') }}
 @endsection --}}
@@ -167,7 +167,7 @@
                 }
             });
 
-            
+
         });
     </script>
 @endsection

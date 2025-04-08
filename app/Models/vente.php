@@ -27,4 +27,9 @@ class vente extends Model
     {
         return $this->belongsTo(Tariftypeproduitembclient::class, 'tariftypeproduitembclient_id','id');
     }
+
+    public function journee()
+    {
+        return $this->belongsTo(Journee::class);
+    }
 }

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('backend/assets/css/dataTables.bootstrap4.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset('backend/assets/plugins/fontawesome/css/fontawesome.min.css') }}">
+
     <link rel="stylesheet" href="{{ asset('backend/assets/plugins/fontawesome/css/all.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset('backend/assets/css/style.css') }}">
@@ -26,19 +27,21 @@
 @section('admin-content')
     <div class="page-header">
         <div class="page-title">
-            <h4>Liste des Tarifs Type Produit Client</h4>
-            <h6>Gérez vos  Tarifs Type Produit Client</h6>
+            <h4>Liste des Journées</h4>
+            <h6>Gérez vos Journées</h6>
         </div>
         <div class="page-btn">
-            <a href="{{ route('admin.tariftypeproduitclients.create') }}" class="btn btn-added"><img src="{{ asset('backend/assets/img/icons/plus.svg') }}"
-                    alt="img" class="me-1">Nouveau  Tarif TPC</a>
+            <a href="{{ route('admin.journees.create') }}" class="btn btn-added"><img
+                    src="{{ asset('backend/assets/img/icons/plus.svg') }}" alt="img" class="me-1">Nouvelle Journée</a>
         </div>
     </div>
 
     <div class="card">
         <div class="card-body">
+            @include('backend.layouts.composants.messages')
             <div class="table-top">
                 <div class="search-set">
+
                     <div class="search-input">
                         <a class="btn btn-searchset"><img src="{{ asset('backend/assets/img/icons/search-white.svg') }}"
                                 alt="img"></a>
@@ -62,7 +65,6 @@
                 </div>
             </div>
 
-
             <div class="table-responsive">
                 <table class="table  datanew table-striped" id="example">
                     <thead>
@@ -70,40 +72,60 @@
                             <th class="text-center">
                                 N°
                             </th>
-                            <th >Type de Clients</th>
-                            <th >Produits</th>
-                            <th class="text-center">Tarifs</th>
-                            <th class="text-center">Date de création</th>
+                            <th>Utilisateur Ouverture</th>
+                            <th>Date d'ouverture</th>
+                            <th>Utilisateur Fermeture</th>
+                            <th>Date de fermeture</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center">Total Entrées</th>
+                            <th class="text-center">Total Sorties</th>
+                            <th class="text-center">Solde</th>
+                            <th class="text-center">Date Création</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($tariftypeproduitclients as $tariftypeproduitclients)
-                            <tr>
-                                <td class="text-center">{{ $loop->index+1 }}</td>
-                                <td >{{ $tariftypeproduitclients->typeclient->type }}</td>
-                                <td >{{ $tariftypeproduitclients->produit->libelle . ' de ' . $tariftypeproduitclients->produit->format->format . '  ' . $tariftypeproduitclients->produit->emballage->libelle }}</td>
-                                <td class="text-center">{{ number_format($tariftypeproduitclients->tarifliquide ?? 0, 2, ',', ' ') }}</td>
-                                <td class="text-center">{{ \Carbon\Carbon::parse($tariftypeproduitclients->created_at)->format('d-m-Y à H:i')  }}</td>
-                                <td>
 
-                                     @if (auth()->user()->can('admin.edit'))
-                                        <a class="me-3" href="{{ route('admin.admins.edit', $tariftypeproduitclients->id) }}"><img
-                                                src="{{ asset('backend/assets/img/icons/edit.svg') }}" alt="img"></a>
+                        @foreach ($journees as $journee)
+                            <tr>
+                                <td class="text-center">{{ $loop->index + 1 }}</td>
+                                <td>{{ $journee->user->name  ?? 'N/A' }}</td>
+                                <td>{{ \Carbon\Carbon::parse($journee->date_ouverture)->translatedFormat('d F Y \à H\hi\ms\s') ?? 'N/A' }}</td>
+                                <td>{{ $journee->userFermeture->name ?? 'N/A' }}</td>
+                                <td>{{ \Carbon\Carbon::parse($journee->date_fermeture)->translatedFormat('d F Y \à H\hi\ms\s') ?? 'N/A' }}</td>
+                                <td class="text-center">{{ $journee->statut }}</td>
+                                <td class="text-center">
+                                    {{ number_format($journee->total_entrees, 2, ',', ' ') ?? 'N/A' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ number_format($journee->total_sorties, 2, ',', ' ') ?? 'N/A' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ number_format($journee->solde_financier, 2, ',', ' ') ?? 'N/A' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ \Carbon\Carbon::parse($journee->created_at)->format('d-m-Y à H:i') }}
+                                </td>
+                                <td>
+                                    @if (Auth::guard('admin')->user()->can('journees.edit') && $journee->statut === 'ouverte')
+                                        <a class="me-3" href="{{ route('admin.inventaires.form', $journee->id) }}"><img src="{{ asset('backend/assets/img/icons/eye.svg') }}" alt="img"></a>
                                     @endif
-                                    @if (auth()->user()->can('admin.delete'))
+                                    @if (auth::user()->can('journees.force') && $journee->statut === 'standby')
+                                        <a class="btn btn-success text-white" href="{{ route('admin.inventaires.verify', $journee->id) }}">Vérifier</a>
+                                    @endif
+                                    {{-- @if (auth()->user()->can('admin.delete'))
                                         <a class="confirm-text" href="javascript:void(0);"
-                                                onclick="event.preventDefault(); if(confirm('Êtes vous sûr de vouloir supprimer?')) { document.getElementById('delete-form-{{ $tariftypeproduitclients->id }}').submit(); }">
+                                            onclick="event.preventDefault(); if(confirm('Êtes vous sûr de vouloir supprimer?')) { document.getElementById('delete-form-{{ $journee->id }}').submit(); }">
                                             <img src="{{ asset('backend/assets/img/icons/delete.svg') }}" alt="img">
                                         </a>
 
-                                        <form id="delete-form-{{ $tariftypeproduitclients->id }}"
-                                            action="{{ route('admin.tariftypeproduitclients.destroy', $tariftypeproduitclients->id) }}" method="POST"
-                                            style="display: none;">
+                                        <form id="delete-form-{{ $journee->id }}"
+                                            action=""
+                                            method="POST" style="display: none;">
                                             @method('DELETE')
                                             @csrf
                                         </form>
-                                    @endif
+                                    @endif --}}
                                 </td>
                             </tr>
                         @endforeach
@@ -122,7 +144,6 @@
     <script src="{{ asset('backend/assets/js/jquery.slimscroll.min.js') }}"></script>
 
     <script src="{{ asset('backend/assets/js/jquery.dataTables.min.js') }}"></script>
-
     <script src="{{ asset('backend/assets/js/dataTables.bootstrap4.min.js') }}"></script>
 
     <script src="{{ asset('backend/assets/js/bootstrap.bundle.min.js') }}"></script>

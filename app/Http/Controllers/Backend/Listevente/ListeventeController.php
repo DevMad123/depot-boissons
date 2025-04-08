@@ -17,17 +17,17 @@ use Illuminate\Http\Request;
 
 class ListeventeController extends Controller
 {
-    
+
     public function index()
     {
         $this->checkAuthorization(auth()->user(), ['listeventes.view']);
-        $traitementventes = TraitementVente::all(); 
-        $counttraitementventes = $traitementventes->count(); 
+        $traitementventes = TraitementVente::all();
+        $counttraitementventes = $traitementventes->count();
         if ($counttraitementventes>0) {
         $traitementvente = TraitementVente::truncate();
         }
-        $traitementclientventes = Traitementclientvente::all(); 
-        $counttraitementclientventes = $traitementclientventes->count(); 
+        $traitementclientventes = Traitementclientvente::all();
+        $counttraitementclientventes = $traitementclientventes->count();
         if ($counttraitementclientventes>0) {
         $traitementclientvente = Traitementclientvente::truncate();
         }
@@ -49,10 +49,10 @@ class ListeventeController extends Controller
         // $client = Client::where('id', $facture['client_id'])->get();
         // $parammodepaiement = ParamModepaiement::where('id', $facture['parammodepaiement_id'])->get();
 
-        
+
         // // $client_id = Traitementclientvente::first();
         // // $clientsinfo = Client::where('id', $client_id['client_id'])->get();
-       
+
         // return view('backend.pages.facture.show', [
         //     'factures' => $facture,
         //     'facture_produits' => $facture_produit,
@@ -73,17 +73,17 @@ class ListeventeController extends Controller
 
     $listeventes = Listevente::where('code_vente', $id)->get();
 
-    
+
     $detailsventeavaliders = Detailsventeavalider::where('code_vente', $id)->get();
-    
-    
-    
-    
+
+
+
+
     //dd($listeventes .'   '. $detailsventeavaliders);
 
     foreach ( $detailsventeavaliders as $key => $value) {
         $ventes = new vente();
-         
+
          $ventes->code_vente = $value['code_vente'];
          $ventes->facture_num = $value['facture_num'];
          $ventes->produit_id = $value['produit_id'];
@@ -98,7 +98,7 @@ class ListeventeController extends Controller
 
           $factureproduits = new FactureProduit();
 
-             
+
          $factureproduits->code_vente = $value['code_vente'];
          $factureproduits->facture_num = $value['facture_num'];
          $factureproduits->produit_id = $value['produit_id'];
@@ -127,7 +127,7 @@ class ListeventeController extends Controller
            $stock->quantite_disponible -=  $value['quantite'];
            $stock->save();
        }
-      
+
 
 
          Listevente::where('code_vente', $id)->update(['validervente' => 'valider']);
@@ -165,17 +165,13 @@ class ListeventeController extends Controller
         $factureembs->save();
     }
 
-        
-     
-     
-
      session()->flash('success', __('Vente éffectué  avec succès.'));
      return redirect()->route('admin.factures.index');
  }
 
 
  // ANNULER VENTE
- 
+
  public function annulervente($id)
  {
     $this->checkAuthorization(auth()->user(), ['listeventes.annulervente']);
@@ -188,5 +184,5 @@ class ListeventeController extends Controller
      session()->flash('success', __('Vente annulée  avec succès.'));
      return redirect()->route('admin.listeventes.index');
  }
-   
+
 }

@@ -11,6 +11,7 @@ use App\Models\Produit;
 use App\Models\Stock;
 use App\Models\Tariftypeproduitfournisseur;
 use App\Models\Traitementclientvente;
+use App\Models\Journee;
 use App\Models\TraitementVente;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -38,13 +39,17 @@ class ApprovisionnementController extends Controller
 
         return view('backend.pages.approvisionnement.index', [
             'approvisionnement' =>  Approvisionnement::with('taritypeproduitfournisseur.fournisseur', 'taritypeproduitfournisseur.produit', 'taritypeproduitfournisseur.produit.emballage', 'taritypeproduitfournisseur.produit.format')->get(),
-        
+
         ]);
     }
 
-    public function create(): Renderable
+    public function create()
     {
         $this->checkAuthorization(auth()->user(), ['approvisionnement.create']);
+        $journeeOuverte = Journee::where('statut', 'ouverte')->exists();
+        if (!$journeeOuverte) {
+            return redirect()->route('admin.journees.index')->with('error', 'Veuillez ouvrir une journée avant toute operation.');
+        }
         $traitementventes = TraitementVente::all();
         $counttraitementventes = $traitementventes->count();
         if ($counttraitementventes > 0) {
@@ -65,7 +70,10 @@ class ApprovisionnementController extends Controller
     public function store(StoreApprovisionnementRequest $request): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['approvisionnement.create']);
-
+        $journeeOuverte = Journee::where('statut', 'ouverte')->exists();
+        if (!$journeeOuverte) {
+            return redirect()->route('admin.journees.index')->with('error', 'Veuillez ouvrir une journée avant toute operation.');
+        }
         //$totalPrice = $request->quantite * $request->prix_achat;
 
         $approvisionnements = new Approvisionnement();
@@ -73,6 +81,7 @@ class ApprovisionnementController extends Controller
         $produit = Produit::where('id', $request->produit_id)->first();
 
         //$quantiteEmballage = Emballage::where('id', $produit->emballage_id)->first();
+        $tarif = Tariftypeproduitfournisseur::where('id', $request->tariftypeproduitfournisseur_id)->get();
 
         $approvisionnementStock = $request->quantite;
 
@@ -80,6 +89,18 @@ class ApprovisionnementController extends Controller
         $approvisionnements->quantite =  $approvisionnementStock;
         $approvisionnements->date_approvisionnement = \Carbon\Carbon::parse($request->date_approvisionnement)->format('Y-m-d H:i');
         $approvisionnements->save();
+
+        if ($journeeOuverte) {
+            $journneeoperations = new JourneeOperations();
+            $journneeoperations->user_id = 1;
+            $journneeoperations->journee_id = $journeeOuverte->id;
+            $journneeoperations->produit_id = $produit->id;
+            $journneeoperations->type_operation = 'approvisionnement';
+            $journneeoperations->quantite = $approvisionnements->quantite;
+            $journneeoperations->montant = $approvisionnements->quantite * $tarif->tarifliquide;
+            $journneeoperations->created_at = now();
+            $journneeoperations->save();
+        }
 
         // Ajouter l'approvisionnement au stock
         // Vérifier si le produit existe déjà dans le stock

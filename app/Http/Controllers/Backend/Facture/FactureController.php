@@ -18,13 +18,13 @@ class FactureController extends Controller
     public function index()
     {
         $this->checkAuthorization(auth()->user(), ['listefacturesliquide.view']);
-        $traitementventes = TraitementVente::all(); 
-        $counttraitementventes = $traitementventes->count(); 
+        $traitementventes = TraitementVente::all();
+        $counttraitementventes = $traitementventes->count();
         if ($counttraitementventes>0) {
         $traitementvente = TraitementVente::truncate();
         }
-        $traitementclientventes = Traitementclientvente::all(); 
-        $counttraitementclientventes = $traitementclientventes->count(); 
+        $traitementclientventes = Traitementclientvente::all();
+        $counttraitementclientventes = $traitementclientventes->count();
         if ($counttraitementclientventes>0) {
         $traitementclientvente = Traitementclientvente::truncate();
         }
@@ -47,10 +47,10 @@ class FactureController extends Controller
         $client = Client::where('id', $facture['client_id'])->get();
         $parammodepaiement = ParamModepaiement::where('id', $facture['parammodepaiement_id'])->get();
 
-        
+
         // $client_id = Traitementclientvente::first();
         // $clientsinfo = Client::where('id', $client_id['client_id'])->get();
-       
+
         return view('backend.pages.facture.show', [
             'factures' => $facture,
             'facture_produits' => $facture_produit,

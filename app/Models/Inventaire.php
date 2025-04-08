@@ -8,9 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Inventaire extends Model
 {
     use HasFactory;
-    protected $fillable = [];
+    protected $fillable = [
+        'journee_id',
+        'produit_id',
+        'quantite_ouverture',
+        'quantite_fermeture',
+        'commentaire',
+        'statut',
+    ];
 
-    // Relation avec le produit
+    public function journee()
+    {
+        return $this->belongsTo(Journee::class);
+    }
+
     public function produit()
     {
         return $this->belongsTo(Produit::class);
