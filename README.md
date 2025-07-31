@@ -19,8 +19,8 @@ Mot de passe - 12345678
 
 - Laravel `11.x`
 ## Infos Dév:
-- Nom et Prénoms : OUEDRAOGO Abdoul Azize
-- Adresse mail : ouedraogoabdoul2794@gmail.com
+- Nom et Prénoms : N'golo Madou OUATTARA
+- Adresse mail : ngolomadououattara@gmail.com
 - Adresse : Abobo, Abidjan, Côte d’Ivoire
 
 
